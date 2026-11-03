@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import DiaryScreen from './components/screens/DiaryScreen';
 import MainMenuScreen from './components/screens/MainMenuScreen';
 import ProfileScreen from './components/screens/ProfileScreen';
+import SkillTreeScreen from './components/screens/SkillTreeScreen';
 import { dateKey } from './components/utils/dateUtils';
 import {
   createTask,
@@ -11,10 +12,12 @@ import {
   saveDiaryEntry,
   updateTaskCompletion,
 } from './components/storage/localDatabase';
+import { localSkillRepository } from './components/storage/localSkillRepository';
 import type { DiaryEntry, Task } from './components/storage/localDatabase';
+import type { NewSkill, Skill } from './components/storage/skillRepository';
 import { COLORS } from './components/theme/theme';
 
-type Page = 'home' | 'diary' | 'profile';
+type Page = 'home' | 'diary' | 'profile' | 'skills';
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
@@ -27,6 +30,7 @@ export default function App() {
   const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
   const [taskInput, setTaskInput] = useState('');
   const [entries, setEntries] = useState<Record<string, DiaryEntry>>({});
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [selectedDate, setSelectedDate] = useState(today);
   const [visibleMonth, setVisibleMonth] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1),
@@ -44,6 +48,7 @@ export default function App() {
         if (!active) return;
         setTasksByDate(data.tasksByDate);
         setEntries(data.entries);
+        setSkills(data.skills);
         setDatabaseReady(true);
         setStorageError(null);
       } catch (error) {
@@ -77,6 +82,33 @@ export default function App() {
       setStorageError(null);
     } catch (error) {
       setStorageError(getErrorMessage(error, 'Tehtävän tallennus epäonnistui.'));
+    }
+  }
+
+  async function addSkill(skill: NewSkill): Promise<boolean> {
+    if (!databaseReady) return false;
+
+    try {
+      const createdSkill = await localSkillRepository.create(skill);
+      setSkills((current) => [...current, createdSkill]);
+      setStorageError(null);
+      return true;
+    } catch (error) {
+      setStorageError(getErrorMessage(error, 'Taidon tallennus epäonnistui.'));
+      return false;
+    }
+  }
+
+  async function resetSkills(): Promise<boolean> {
+    if (!databaseReady) return false;
+
+    try {
+      setSkills(await localSkillRepository.reset());
+      setStorageError(null);
+      return true;
+    } catch (error) {
+      setStorageError(getErrorMessage(error, 'Taitopuun palautus epäonnistui.'));
+      return false;
     }
   }
 
@@ -192,6 +224,13 @@ export default function App() {
         />
       )}
       {page === 'profile' && <ProfileScreen />}
+      {page === 'skills' && (
+        <SkillTreeScreen
+          skills={skills}
+          onCreateSkill={addSkill}
+          onResetSkills={resetSkills}
+        />
+      )}
 
       <View style={styles.bottomNav}>
         <NavButton
@@ -211,6 +250,12 @@ export default function App() {
           icon="◇"
           selected={page === 'profile'}
           onPress={() => setPage('profile')}
+        />
+        <NavButton
+          label="TAITOPUU"
+          icon="⌘"
+          selected={page === 'skills'}
+          onPress={() => setPage('skills')}
         />
       </View>
     </View>
