@@ -1,11 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import type { NewSkill, Skill } from './skillRepository';
-
-export type Task = {
-  id: number;
-  title: string;
-  done: boolean;
-};
+import type { NewTask, Task } from './taskRepository';
 
 export type DiaryEntry = {
   thoughts: string;
@@ -21,7 +16,12 @@ export type LocalData = {
 type TaskRow = {
   id: number;
   date: string;
+  template_id: string | null;
   title: string;
+  description: string;
+  duration_minutes: number;
+  xp: number;
+  task_class: string;
   done: number;
 };
 
@@ -86,7 +86,12 @@ export async function initializeLocalDatabase(today: string): Promise<LocalData>
     CREATE TABLE IF NOT EXISTS tasks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
+      template_id TEXT,
       title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      duration_minutes INTEGER NOT NULL DEFAULT 0,
+      xp INTEGER NOT NULL DEFAULT 0,
+      task_class TEXT NOT NULL DEFAULT 'custom',
       done INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS tasks_date_idx ON tasks(date);
@@ -107,6 +112,24 @@ export async function initializeLocalDatabase(today: string): Promise<LocalData>
     );
     CREATE INDEX IF NOT EXISTS skills_parent_id_idx ON skills(parent_id);
   `);
+
+  const taskColumns = await database.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(tasks)',
+  );
+  const existingTaskColumns = new Set(taskColumns.map((column) => column.name));
+  const taskColumnMigrations = [
+    ['template_id', 'TEXT'],
+    ['description', "TEXT NOT NULL DEFAULT ''"],
+    ['duration_minutes', 'INTEGER NOT NULL DEFAULT 0'],
+    ['xp', 'INTEGER NOT NULL DEFAULT 0'],
+    ['task_class', "TEXT NOT NULL DEFAULT 'custom'"],
+  ] as const;
+
+  for (const [column, definition] of taskColumnMigrations) {
+    if (!existingTaskColumns.has(column)) {
+      await database.execAsync(`ALTER TABLE tasks ADD COLUMN ${column} ${definition}`);
+    }
+  }
 
   const seeded = await database.getFirstAsync<MetaRow>(
     'SELECT value FROM app_meta WHERE key = ?',
@@ -172,7 +195,8 @@ export async function initializeLocalDatabase(today: string): Promise<LocalData>
   }
 
   const taskRows = await database.getAllAsync<TaskRow>(
-    'SELECT id, date, title, done FROM tasks ORDER BY id',
+    `SELECT id, date, template_id, title, description, duration_minutes, xp, task_class, done
+     FROM tasks ORDER BY id`,
   );
   const entryRows = await database.getAllAsync<DiaryEntryRow>(
     'SELECT date, thoughts, rating FROM diary_entries',
@@ -183,7 +207,16 @@ export async function initializeLocalDatabase(today: string): Promise<LocalData>
 
   for (const row of taskRows) {
     const tasks = tasksByDate[row.date] ?? [];
-    tasks.push({ id: row.id, title: row.title, done: row.done === 1 });
+    tasks.push({
+      id: row.id,
+      templateId: row.template_id,
+      title: row.title,
+      description: row.description,
+      durationMinutes: row.duration_minutes,
+      xp: row.xp,
+      class: row.task_class,
+      done: row.done === 1,
+    });
     tasksByDate[row.date] = tasks;
   }
 
@@ -231,16 +264,43 @@ export async function resetSkills(): Promise<Skill[]> {
   return loadSkills();
 }
 
-export async function createTask(date: string, title: string): Promise<Task> {
+export async function listTasksForDate(date: string): Promise<Task[]> {
+  const database = await getDatabase();
+  const rows = await database.getAllAsync<TaskRow>(
+    `SELECT id, date, template_id, title, description, duration_minutes, xp, task_class, done
+     FROM tasks WHERE date = ? ORDER BY id`,
+    date,
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    templateId: row.template_id,
+    title: row.title,
+    description: row.description,
+    durationMinutes: row.duration_minutes,
+    xp: row.xp,
+    class: row.task_class,
+    done: row.done === 1,
+  }));
+}
+
+export async function createTask(date: string, task: NewTask): Promise<Task> {
   const database = await getDatabase();
   const result = await database.runAsync(
-    'INSERT INTO tasks (date, title, done) VALUES (?, ?, ?)',
+    `INSERT INTO tasks (
+       date, template_id, title, description, duration_minutes, xp, task_class, done
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     date,
-    title,
+    task.templateId,
+    task.title,
+    task.description,
+    task.durationMinutes,
+    task.xp,
+    task.class,
     0,
   );
 
-  return { id: result.lastInsertRowId, title, done: false };
+  return { id: result.lastInsertRowId, ...task, done: false };
 }
 
 export async function updateTaskCompletion(id: number, done: boolean): Promise<void> {
