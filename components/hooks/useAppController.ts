@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { initializeLocalDatabase } from '../storage/localDatabase';
 import type { LocalData } from '../storage/localDatabase';
+import { jsonTaskCatalogRepository } from '../storage/jsonTaskCatalogRepository';
+import { localTaskRepository } from '../storage/localTaskRepository';
 import { dateKey } from '../utils/dateUtils';
 import { useDiaryLogic } from './useDiaryLogic';
 import { useSkillTreeLogic } from './useSkillTreeLogic';
@@ -47,9 +49,10 @@ export function useAppController() {
   const onStorageError = setStorageError;
   const tasks = useTaskLogic({
     todayKey,
-    initialTasksByDate: localData?.tasksByDate ?? null,
     databaseReady,
     onStorageError,
+    taskRepository: localTaskRepository,
+    taskCatalogRepository: jsonTaskCatalogRepository,
   });
   const diary = useDiaryLogic({
     today,
