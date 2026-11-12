@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import type { Task } from '../storage/localDatabase';
+import type { Task, TaskTemplate } from '../storage/taskRepository';
 import { formatDate } from '../utils/dateUtils';
 import { COLORS } from '../theme/theme';
 
 type Props = {
   today: Date;
   tasks: Task[];
+  availableTemplates: TaskTemplate[];
   taskInput: string;
   onTaskInputChange: (value: string) => void;
   onAddTask: () => void;
+  onAddTemplateTask: (templateId: string) => void;
   onToggleTask: (id: number) => void;
   onOpenDiary: () => void;
 };
@@ -16,14 +19,17 @@ type Props = {
 export default function MainMenuScreen({
   today,
   tasks,
+  availableTemplates,
   taskInput,
   onTaskInputChange,
   onAddTask,
+  onAddTemplateTask,
   onToggleTask,
   onOpenDiary,
 }: Props) {
   const completedTasks = tasks.filter((task) => task.done).length;
   const progress = tasks.length ? (completedTasks / tasks.length) * 100 : 0;
+  const [showTaskCatalog, setShowTaskCatalog] = useState(false);
 
   return (
     <ScrollView
@@ -70,14 +76,71 @@ export default function MainMenuScreen({
               <View style={[styles.checkbox, task.done && styles.checkboxDone]}>
                 {task.done && <Text style={styles.checkmark}>✓</Text>}
               </View>
-              <Text style={[styles.taskTitle, task.done && styles.taskDone]}>
-                {task.title}
-              </Text>
+              <View style={styles.taskInfo}>
+                <Text style={[styles.taskTitle, task.done && styles.taskDone]}>
+                  {task.title}
+                </Text>
+                {(task.durationMinutes > 0 || task.xp > 0) && (
+                  <Text style={styles.taskMetadata}>
+                    {task.durationMinutes > 0 ? `${task.durationMinutes} min` : 'Päivän tavoite'}
+                    {'  ·  '}{task.class}
+                  </Text>
+                )}
+              </View>
+              {task.xp > 0 && <Text style={styles.taskXp}>+{task.xp} XP</Text>}
               <Text style={styles.taskArrow}>›</Text>
             </Pressable>
           ))
         )}
       </View>
+
+      <Pressable
+        style={styles.catalogToggle}
+        onPress={() => setShowTaskCatalog((visible) => !visible)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: showTaskCatalog }}
+      >
+        <View>
+          <Text style={styles.sectionTitle}>Lisää tehtävä listasta</Text>
+          <Text style={styles.catalogSubtitle}>Valitse päivän tavoitteisiin sopiva tehtävä</Text>
+        </View>
+        <Text style={styles.catalogArrow}>{showTaskCatalog ? '−' : '+'}</Text>
+      </Pressable>
+
+      {showTaskCatalog && (
+        <View style={styles.catalogList}>
+          {availableTemplates.length === 0 ? (
+            <Text style={styles.emptyText}>Kaikki listan tehtävät on jo lisätty tälle päivälle.</Text>
+          ) : (
+            availableTemplates.map((template, index) => (
+              <View
+                key={template.id}
+                style={[
+                  styles.catalogRow,
+                  index === availableTemplates.length - 1 && styles.lastTaskRow,
+                ]}
+              >
+                <View style={styles.catalogTaskInfo}>
+                  <Text style={styles.catalogTaskTitle}>{template.title}</Text>
+                  <Text style={styles.catalogTaskDetails}>
+                    {template.durationMinutes > 0 ? `${template.durationMinutes} min` : 'Päivän tavoite'}
+                    {'  ·  '}{template.xp} XP{'  ·  '}{template.class}
+                  </Text>
+                  <Text style={styles.catalogDescription}>{template.description}</Text>
+                </View>
+                <Pressable
+                  style={styles.catalogAddButton}
+                  onPress={() => onAddTemplateTask(template.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Lisää tehtävä: ${template.title}`}
+                >
+                  <Text style={styles.catalogAddButtonText}>+</Text>
+                </Pressable>
+              </View>
+            ))
+          )}
+        </View>
+      )}
 
       <Text style={styles.inputLabel}>LISÄÄ OMA TEHTÄVÄ</Text>
       <View style={styles.addTaskRow}>
@@ -236,9 +299,17 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   taskTitle: {
-    flex: 1,
     color: COLORS.text,
     fontSize: 14,
+  },
+  taskInfo: {
+    flex: 1,
+  },
+  taskMetadata: {
+    color: COLORS.muted,
+    fontSize: 10,
+    marginTop: 4,
+    textTransform: 'capitalize',
   },
   taskDone: {
     color: COLORS.muted,
@@ -249,10 +320,91 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginLeft: 8,
   },
+  taskXp: {
+    color: COLORS.accent,
+    fontSize: 10,
+    fontWeight: '700',
+  },
   emptyText: {
     color: COLORS.muted,
     fontSize: 13,
     paddingVertical: 18,
+  },
+  catalogToggle: {
+    minHeight: 68,
+    marginTop: 21,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  catalogSubtitle: {
+    color: COLORS.muted,
+    fontSize: 11,
+    marginTop: 5,
+  },
+  catalogArrow: {
+    color: COLORS.accent,
+    fontSize: 24,
+    fontWeight: '600',
+    paddingHorizontal: 5,
+  },
+  catalogList: {
+    marginTop: 9,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+  },
+  catalogRow: {
+    minHeight: 82,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  catalogTaskInfo: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  catalogTaskTitle: {
+    color: COLORS.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  catalogTaskDetails: {
+    color: COLORS.accent,
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 5,
+    textTransform: 'capitalize',
+  },
+  catalogDescription: {
+    color: COLORS.muted,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 4,
+  },
+  catalogAddButton: {
+    width: 35,
+    height: 35,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accentDark,
+  },
+  catalogAddButtonText: {
+    color: COLORS.accent,
+    fontSize: 22,
+    lineHeight: 25,
+    fontWeight: '600',
   },
   inputLabel: {
     color: COLORS.muted,
