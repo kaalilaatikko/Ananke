@@ -26,9 +26,11 @@ export default function App() {
             <MainMenuScreen
               today={app.today}
               tasks={app.tasks.dailyTasks}
+              availableTemplates={app.tasks.availableTemplates}
               taskInput={app.tasks.taskInput}
               onTaskInputChange={app.tasks.setTaskInput}
               onAddTask={app.tasks.addTask}
+              onAddTemplateTask={app.tasks.addTemplateTask}
               onToggleTask={app.tasks.toggleTask}
               onOpenDiary={() => setPage('diary')}
             />

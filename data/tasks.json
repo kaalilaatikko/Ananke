@@ -1,0 +1,244 @@
+{
+  "tasks": [
+    {
+      "id": "run-30-min",
+      "title": "Käy 30 minuutin lenkillä",
+      "description": "Lähde ulos juoksemaan tai hölkkäämään puoleksi tunniksi.",
+      "durationMinutes": 30,
+      "xp": 30,
+      "class": "endurance"
+    },
+    {
+      "id": "read-30-min",
+      "title": "Lue kirjaa 30 minuuttia",
+      "description": "Lue valitsemaasi kirjaa rauhallisessa paikassa.",
+      "durationMinutes": 30,
+      "xp": 25,
+      "class": "intelligence"
+    },
+    {
+      "id": "strength-training-45-min",
+      "title": "Tee voimaharjoitus",
+      "description": "Harjoittele lihaskuntoa esimerkiksi kuntosalilla tai kotona.",
+      "durationMinutes": 45,
+      "xp": 45,
+      "class": "strength"
+    },
+    {
+      "id": "study-25-min",
+      "title": "Opiskele keskittyneesti 25 minuuttia",
+      "description": "Valitse yksi aihe ja opiskele ilman häiriötekijöitä.",
+      "durationMinutes": 25,
+      "xp": 25,
+      "class": "intelligence"
+    },
+    {
+      "id": "stretch-15-min",
+      "title": "Venyttele 15 minuuttia",
+      "description": "Tee kevyt liikkuvuus- tai venyttelyharjoitus.",
+      "durationMinutes": 15,
+      "xp": 15,
+      "class": "agility"
+    },
+    {
+      "id": "meditate-10-min",
+      "title": "Meditoi 10 minuuttia",
+      "description": "Rauhoitu ja keskity hengitykseen kymmenen minuutin ajan.",
+      "durationMinutes": 10,
+      "xp": 15,
+      "class": "wisdom"
+    },
+    {
+      "id": "walk-20-min",
+      "title": "Käy 20 minuutin kävelyllä",
+      "description": "Tee reipas kävelylenkki ulkona.",
+      "durationMinutes": 20,
+      "xp": 20,
+      "class": "endurance"
+    },
+    {
+      "id": "drink-water",
+      "title": "Juo päivän aikana riittävästi vettä",
+      "description": "Pidä vesipullo mukana ja huolehdi nesteytyksestä.",
+      "durationMinutes": 0,
+      "xp": 10,
+      "class": "vitality"
+    },
+    {
+      "id": "clean-room-20-min",
+      "title": "Siivoa 20 minuuttia",
+      "description": "Siisti työpöytä tai yksi pieni alue kodista.",
+      "durationMinutes": 20,
+      "xp": 20,
+      "class": "discipline"
+    },
+    {
+      "id": "cook-healthy-meal-30-min",
+      "title": "Valmista terveellinen ateria",
+      "description": "Tee ravitseva ateria ja syö se ilman kiirettä.",
+      "durationMinutes": 30,
+      "xp": 25,
+      "class": "vitality"
+    },
+    {
+      "id": "cycle-30-min",
+      "title": "Pyöräile 30 minuuttia",
+      "description": "Tee rauhallinen tai reipas pyörälenkki.",
+      "durationMinutes": 30,
+      "xp": 30,
+      "class": "endurance"
+    },
+    {
+      "id": "push-ups-10-min",
+      "title": "Tee punnerrusharjoitus",
+      "description": "Tee punnerruksia omaan tasoosi sopivissa sarjoissa.",
+      "durationMinutes": 10,
+      "xp": 15,
+      "class": "strength"
+    },
+    {
+      "id": "yoga-25-min",
+      "title": "Tee joogaharjoitus",
+      "description": "Seuraa lyhyttä jooga- tai liikkuvuusharjoitusta.",
+      "durationMinutes": 25,
+      "xp": 25,
+      "class": "agility"
+    },
+    {
+      "id": "language-practice-20-min",
+      "title": "Harjoittele vierasta kieltä",
+      "description": "Opiskele sanastoa tai harjoittele kieltä sovelluksella.",
+      "durationMinutes": 20,
+      "xp": 20,
+      "class": "intelligence"
+    },
+    {
+      "id": "journal-10-min",
+      "title": "Kirjoita päiväkirjaa",
+      "description": "Kirjaa ylös päivän ajatuksia tai kolme asiaa, joista olet kiitollinen.",
+      "durationMinutes": 10,
+      "xp": 15,
+      "class": "wisdom"
+    },
+    {
+      "id": "stairs-15-min",
+      "title": "Tee porrastreeni",
+      "description": "Kävele tai juokse portaita omaan kuntoosi sopivasti.",
+      "durationMinutes": 15,
+      "xp": 20,
+      "class": "endurance"
+    },
+    {
+      "id": "core-workout-20-min",
+      "title": "Tee keskivartalotreeni",
+      "description": "Harjoittele keskivartaloa esimerkiksi lankulla ja vatsalihasliikkeillä.",
+      "durationMinutes": 20,
+      "xp": 25,
+      "class": "strength"
+    },
+    {
+      "id": "learn-skill-30-min",
+      "title": "Opiskele uutta taitoa",
+      "description": "Käytä puoli tuntia uuden käytännön tai luovan taidon harjoitteluun.",
+      "durationMinutes": 30,
+      "xp": 30,
+      "class": "intelligence"
+    },
+    {
+      "id": "meal-plan-15-min",
+      "title": "Suunnittele huomisen ateriat",
+      "description": "Tee yksinkertainen suunnitelma seuraavan päivän aterioille.",
+      "durationMinutes": 15,
+      "xp": 15,
+      "class": "discipline"
+    },
+    {
+      "id": "nature-walk-30-min",
+      "title": "Kävele luonnossa",
+      "description": "Lähde rauhalliselle kävelylle puistoon tai luontopolulle.",
+      "durationMinutes": 30,
+      "xp": 25,
+      "class": "vitality"
+    },
+    {
+      "id": "dance-20-min",
+      "title": "Tanssi 20 minuuttia",
+      "description": "Laita musiikkia soimaan ja liiku sen tahdissa.",
+      "durationMinutes": 20,
+      "xp": 25,
+      "class": "agility"
+    },
+    {
+      "id": "declutter-15-min",
+      "title": "Järjestä yksi laatikko",
+      "description": "Karsi turhat tavarat ja järjestä yksi laatikko tai hylly.",
+      "durationMinutes": 15,
+      "xp": 15,
+      "class": "discipline"
+    },
+    {
+      "id": "breathing-exercise-5-min",
+      "title": "Tee hengitysharjoitus",
+      "description": "Pysähdy hetkeksi ja tee rauhallinen hengitysharjoitus.",
+      "durationMinutes": 5,
+      "xp": 10,
+      "class": "wisdom"
+    },
+    {
+      "id": "bodyweight-workout-30-min",
+      "title": "Tee kehonpainotreeni",
+      "description": "Harjoittele esimerkiksi kyykkyjä, askelkyykkyjä ja punnerruksia.",
+      "durationMinutes": 30,
+      "xp": 35,
+      "class": "strength"
+    },
+    {
+      "id": "podcast-learning-25-min",
+      "title": "Kuuntele opettavainen podcast",
+      "description": "Kuuntele jakso tai osa jaksosta ja poimi siitä yksi uusi ajatus.",
+      "durationMinutes": 25,
+      "xp": 20,
+      "class": "intelligence"
+    },
+    {
+      "id": "morning-routine-15-min",
+      "title": "Tee rauhallinen aamurutiini",
+      "description": "Aloita päivä ilman kiirettä esimerkiksi venyttelyllä ja päivän suunnittelulla.",
+      "durationMinutes": 15,
+      "xp": 20,
+      "class": "discipline"
+    },
+    {
+      "id": "swim-30-min",
+      "title": "Ui 30 minuuttia",
+      "description": "Tee omaan tasoosi sopiva uintiharjoitus.",
+      "durationMinutes": 30,
+      "xp": 35,
+      "class": "endurance"
+    },
+    {
+      "id": "drink-water-breaks",
+      "title": "Pidä vesitaukoja päivän aikana",
+      "description": "Muista juoda vettä säännöllisesti päivän mittaan.",
+      "durationMinutes": 0,
+      "xp": 10,
+      "class": "vitality"
+    },
+    {
+      "id": "plan-week-20-min",
+      "title": "Suunnittele tuleva viikko",
+      "description": "Kirjaa viikon tärkeimmät tehtävät ja varaa niille aikaa.",
+      "durationMinutes": 20,
+      "xp": 25,
+      "class": "discipline"
+    },
+    {
+      "id": "screen-free-break-30-min",
+      "title": "Pidä ruuduton tauko",
+      "description": "Vietä puoli tuntia ilman puhelinta, tietokonetta tai televisiota.",
+      "durationMinutes": 30,
+      "xp": 20,
+      "class": "wisdom"
+    }
+  ]
+}
