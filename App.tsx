@@ -4,12 +4,17 @@ import type { AppPage } from './components/layout/AppLayout';
 import DiaryScreen from './components/screens/DiaryScreen';
 import MainMenuScreen from './components/screens/MainMenuScreen';
 import ProfileScreen from './components/screens/ProfileScreen';
+import SignInScreen from './components/screens/SignInScreen';
 import SkillTreeScreen from './components/screens/SkillTreeScreen';
 import { useAppController } from './components/hooks/useAppController';
 
 export default function App() {
   const [page, setPage] = useState<AppPage>('home');
   const app = useAppController();
+
+  if (app.authReady && !app.databaseReady) {
+    return <SignInScreen error={app.storageError} onSignIn={app.signIn} />;
+  }
 
   return (
     <AppLayout
@@ -31,7 +36,9 @@ export default function App() {
               onTaskInputChange={app.tasks.setTaskInput}
               onAddTask={app.tasks.addTask}
               onAddTemplateTask={app.tasks.addTemplateTask}
-              onToggleTask={app.tasks.toggleTask}
+              onToggleTask={(id) => {
+                void app.tasks.toggleTask(id).then(app.refreshProfile);
+              }}
               onOpenDiary={() => setPage('diary')}
             />
           )}
@@ -45,7 +52,7 @@ export default function App() {
               onUpdateEntry={app.diary.updateEntry}
             />
           )}
-          {page === 'profile' && <ProfileScreen />}
+          {page === 'profile' && <ProfileScreen data={app.profile} />}
           {page === 'skills' && (
             <SkillTreeScreen
               skills={app.skillTree.skills}
