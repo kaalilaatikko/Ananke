@@ -54,6 +54,7 @@ export function useTaskLogic({
   }, [databaseReady, onStorageError, taskRepository, todayKey]);
 
   useEffect(() => {
+    if (!databaseReady) return;
     let active = true;
 
     taskCatalogRepository
@@ -70,7 +71,7 @@ export function useTaskLogic({
     return () => {
       active = false;
     };
-  }, [onStorageError, taskCatalogRepository]);
+  }, [databaseReady, onStorageError, taskCatalogRepository]);
 
   async function addTask() {
     const title = taskInput.trim();

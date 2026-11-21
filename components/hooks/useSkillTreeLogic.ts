@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { localSkillRepository } from '../storage/localSkillRepository';
+import { supabaseSkillRepository } from '../storage/supabaseSkillRepository';
 import type { NewSkill, Skill } from '../storage/skillRepository';
 
 type Props = {
-  initialSkills: Skill[] | null;
   databaseReady: boolean;
   onStorageError: (message: string | null) => void;
 };
@@ -13,23 +12,36 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export function useSkillTreeLogic({
-  initialSkills,
   databaseReady,
   onStorageError,
 }: Props) {
   const [skills, setSkills] = useState<Skill[]>([]);
 
   useEffect(() => {
-    if (initialSkills) {
-      setSkills(initialSkills);
-    }
-  }, [initialSkills]);
+    if (!databaseReady) return;
+    let active = true;
+
+    supabaseSkillRepository
+      .list()
+      .then((loadedSkills) => {
+        if (active) setSkills(loadedSkills);
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          onStorageError(getErrorMessage(error, 'Taitojen lataaminen epäonnistui.'));
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [databaseReady, onStorageError]);
 
   async function addSkill(skill: NewSkill): Promise<boolean> {
     if (!databaseReady) return false;
 
     try {
-      const createdSkill = await localSkillRepository.create(skill);
+      const createdSkill = await supabaseSkillRepository.create(skill);
       setSkills((current) => [...current, createdSkill]);
       onStorageError(null);
       return true;
@@ -43,7 +55,7 @@ export function useSkillTreeLogic({
     if (!databaseReady) return false;
 
     try {
-      setSkills(await localSkillRepository.reset());
+      setSkills(await supabaseSkillRepository.reset());
       onStorageError(null);
       return true;
     } catch (error) {
