@@ -1,19 +1,15 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import type { ProfileData } from '../storage/profileRepository';
 import { COLORS } from '../theme/theme';
 
-/// TODO: poista, kun db tehty
-const STATS = [
-  { name: 'STRENGTH', level: 8, xp: 750, maxXp: 1000 },
-  { name: 'ENDURANCE', level: 6, xp: 600, maxXp: 800 },
-  { name: 'INTELLIGENCE', level: 10, xp: 1000, maxXp: 1000, evolves: true },
-  { name: 'CHARISMA', level: 4, xp: 320, maxXp: 500 },
-  { name: 'DISCIPLINE', level: 7, xp: 680, maxXp: 900 },
-  { name: 'SOCIAL', level: 3, xp: 200, maxXp: 400 },
-  { name: 'CREATIVITY', level: 5, xp: 420, maxXp: 600 },
-  { name: 'MINDFULNESS', level: 9, xp: 890, maxXp: 950 },
-];
+type Props = {
+  data: ProfileData | null;
+};
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ data }: Props) {
+  const stats = data?.stats ?? [];
+  const profile = data?.profile;
+
   return (
     <ScrollView style={styles.content} contentContainerStyle={styles.contentInner}>
       <Text style={styles.eyebrow}>HENKILÖKOHTAINEN KEHITYS</Text>
@@ -21,12 +17,22 @@ export default function ProfileScreen() {
 
       <View style={styles.profileCard}>
         <View style={styles.profileBadge}>
-          <Text style={styles.profileBadgeText}>A</Text>
+          <Text style={styles.profileBadgeText}>
+            {profile?.displayName.charAt(0).toLocaleUpperCase('fi-FI') ?? '·'}
+          </Text>
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.cardLabel}>SEIKKAILIJA</Text>
-          <Text style={styles.profileName}>Oma polku</Text>
-          <Text style={styles.profileLevel}>TASO 08  ·  JATKA ETEENPÄIN</Text>
+          <Text style={styles.cardLabel}>
+            {profile?.title.toLocaleUpperCase('fi-FI') ?? 'PROFIILI'}
+          </Text>
+          <Text style={styles.profileName}>
+            {profile?.displayName ?? 'Ladataan profiilia...'}
+          </Text>
+          {profile && (
+            <Text style={styles.profileLevel}>
+              TASO {String(profile.level).padStart(2, '0')}  ·  {profile.totalXp} XP
+            </Text>
+          )}
         </View>
         <Text style={styles.profileSpark}>✦</Text>
       </View>
@@ -37,13 +43,17 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.statsList}>
-        {STATS.map((stat, index) => (
+        {stats.length === 0 ? (
+          <Text style={styles.emptyText}>Profiilin tilastoja ei löytynyt.</Text>
+        ) : stats.map((stat, index) => (
           <View
-            key={stat.name}
-            style={[styles.statRow, index === STATS.length - 1 && styles.lastStatRow]}
+            key={stat.key}
+            style={[styles.statRow, index === stats.length - 1 && styles.lastStatRow]}
           >
             <View style={styles.statTopline}>
-              <Text style={styles.statName}>{stat.name}</Text>
+              <Text style={styles.statName}>
+                {stat.key.toLocaleUpperCase('fi-FI')}
+              </Text>
               <Text style={styles.statValue}>
                 LV.{stat.level}
                 <Text style={styles.statXp}>
@@ -216,5 +226,11 @@ const styles = StyleSheet.create({
   },
   evolutionFill: {
     backgroundColor: '#A3F2DE',
+  },
+  emptyText: {
+    color: COLORS.muted,
+    fontSize: 13,
+    paddingVertical: 18,
+    textAlign: 'center',
   },
 });

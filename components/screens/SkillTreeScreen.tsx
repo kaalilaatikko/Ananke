@@ -53,8 +53,8 @@ export default function SkillTreeScreen({
 
   function confirmReset() {
     Alert.alert(
-      'Palauta oletustaidot?',
-      'Kaikki nykyiset taidot poistetaan ja tilalle luodaan oletuspolku Koulu → Matikka → Kertolaskut.',
+      'Tyhjennä taitopuu?',
+      'Kaikki tämän käyttäjän taidot poistetaan.',
       [
         { text: 'Peruuta', style: 'cancel' },
         {
@@ -147,7 +147,7 @@ export default function SkillTreeScreen({
         onPress={confirmReset}
         accessibilityRole="button"
       >
-        <Text style={styles.resetButtonText}>Tyhjennä ja palauta oletustaidot</Text>
+        <Text style={styles.resetButtonText}>Tyhjennä taitopuu</Text>
       </Pressable>
 
       {formVisible && (

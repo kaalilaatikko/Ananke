@@ -37,7 +37,7 @@ export default function AppLayout({
         <StatusBar style="light" />
         <BrandMark />
         <Text style={styles.databaseTitle}>
-          {storageError ? 'Tallennustilaa ei voitu avata' : 'Ladataan paikallisia tietoja...'}
+          {storageError ? 'Supabase-yhteys epäonnistui' : 'Yhdistetään Supabaseen...'}
         </Text>
         {storageError && (
           <>

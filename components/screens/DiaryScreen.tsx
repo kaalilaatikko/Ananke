@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import type { DiaryEntry } from '../storage/localDatabase';
+import type { DiaryEntry } from '../storage/supabaseDiaryRepository';
 import { dateKey, formatDate } from '../utils/dateUtils';
 import { COLORS } from '../theme/theme';
 
