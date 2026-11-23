@@ -143,10 +143,12 @@ export function useTaskLogic({
         ),
       }));
       onStorageError(null);
+      return true;
     } catch (error) {
       onStorageError(
         getErrorMessage(error, 'Tehtävän tilan tallennus epäonnistui.'),
       );
+      return false;
     }
   }
 

@@ -22,7 +22,12 @@ export default function App() {
       activePage={page}
       databaseReady={app.databaseReady}
       storageError={app.storageError}
-      onPageChange={setPage}
+      onPageChange={(nextPage) => {
+        setPage(nextPage);
+        if (nextPage === 'profile') {
+          void app.refreshProfile();
+        }
+      }}
       onRetryDatabase={app.retryDatabase}
     >
       {app.databaseReady && (
@@ -37,7 +42,9 @@ export default function App() {
               onAddTask={app.tasks.addTask}
               onAddTemplateTask={app.tasks.addTemplateTask}
               onToggleTask={(id) => {
-                void app.tasks.toggleTask(id).then(app.refreshProfile);
+                void app.tasks.toggleTask(id).then((changed) => {
+                  if (changed) void app.refreshProfile();
+                });
               }}
               onOpenDiary={() => setPage('diary')}
             />
