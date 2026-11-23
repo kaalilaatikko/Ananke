@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
 import {
   Alert,
   Pressable,
@@ -25,7 +24,7 @@ export default function SkillTreeScreen({
 }: Props) {
   const [formVisible, setFormVisible] = useState(false);
   const [parentId, setParentId] = useState<number | null>(null);
-  const [expandedSkillId, setExpandedSkillId] = useState<number | null>(null);
+  const [expandedSkillIds, setExpandedSkillIds] = useState<number[]>([]);
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -63,7 +62,7 @@ export default function SkillTreeScreen({
           onPress: () => {
             void onResetSkills().then((saved) => {
               if (saved) {
-                setExpandedSkillId(null);
+                setExpandedSkillIds([]);
                 setFormVisible(false);
                 setName('');
                 setNotes('');
@@ -75,51 +74,61 @@ export default function SkillTreeScreen({
     );
   }
 
-  function renderSkill(skill: Skill, depth: number): ReactNode {
+  function toggleExpanded(skillId: number) {
+    setExpandedSkillIds((current) =>
+      current.includes(skillId)
+        ? current.filter((id) => id !== skillId)
+        : [...current, skillId],
+    );
+  }
+
+  function renderSkill(skill: Skill, depth: number) {
     const children = skills.filter((item) => item.parentId === skill.id);
-    const expanded = expandedSkillId === skill.id;
+    const expanded = expandedSkillIds.includes(skill.id);
 
     return (
-      <View key={skill.id} style={depth > 0 ? styles.branch : undefined}>
-        <View style={styles.skillNode}>
+      <View key={skill.id} style={[styles.skillBranch, depth > 0 && styles.nestedBranch]}>
+        <View style={[styles.skillRow, expanded && styles.expandedSkillRow]}>
           <Pressable
-            style={[styles.skillBubble, expanded && styles.expandedSkillBubble]}
-            onPress={() =>
-              setExpandedSkillId((current) => current === skill.id ? null : skill.id)
-            }
+            style={styles.skillHeader}
+            onPress={() => toggleExpanded(skill.id)}
             accessibilityRole="button"
             accessibilityState={{ expanded }}
-            accessibilityLabel={`${skill.name}, ${expanded ? 'sulje' : 'avaa'} taidon tiedot`}
+            accessibilityLabel={`${skill.name}, ${expanded ? 'sulje' : 'avaa'} taitovaihtoehdot`}
           >
-            <Text style={[styles.skillName, expanded && styles.expandedSkillName]}>
-              {skill.name}
+            <View style={[styles.depthMarker, { marginLeft: depth * 8 }]} />
+            <View style={styles.skillHeaderText}>
+              <Text style={styles.skillName}>{skill.name}</Text>
+              {children.length > 0 && (
+                <Text style={styles.childCount}>{children.length} alataitoa</Text>
+              )}
+            </View>
+            <Text style={[styles.chevron, expanded && styles.chevronExpanded]}>
+              {expanded ? '⌃' : '⌄'}
             </Text>
-            {expanded ? (
-              <ScrollView
-                style={styles.skillNotesScroll}
-                contentContainerStyle={styles.skillNotesContent}
-                nestedScrollEnabled
-                showsVerticalScrollIndicator={false}
-              >
-                <Text style={styles.skillNotes}>
-                  {skill.notes || 'Ei vielä muistiinpanoja.'}
-                </Text>
-              </ScrollView>
-            ) : (
-              <Text style={styles.tapHint}>NAPAUTA</Text>
-            )}
           </Pressable>
+
           {expanded && (
-            <Pressable
-              style={styles.addChildButton}
-              onPress={() => openForm(skill.id)}
-              accessibilityRole="button"
-            >
-              <Text style={styles.addChildText}>+ Lisää jatkotaito</Text>
-            </Pressable>
+            <View style={styles.skillDetails}>
+              <Text style={styles.skillNotesLabel}>MUISTIINPANOT</Text>
+              <Text style={styles.skillNotes}>
+                {skill.notes || 'Ei vielä muistiinpanoja.'}
+              </Text>
+              {children.length > 0 && (
+                <View style={styles.submenuList}>
+                  {children.map((child) => renderSkill(child, depth + 1))}
+                </View>
+              )}
+              <Pressable
+                style={styles.addChildButton}
+                onPress={() => openForm(skill.id)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.addChildText}>+ Lisää alataito</Text>
+              </Pressable>
+            </View>
           )}
         </View>
-        {children.map((child) => renderSkill(child, depth + 1))}
       </View>
     );
   }
@@ -358,69 +367,89 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  skillNode: {
-    alignItems: 'center',
-    marginBottom: 10,
+  skillBranch: {
+    marginBottom: 8,
   },
-  skillBubble: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.accent,
+  nestedBranch: {
+    marginLeft: 8,
+  },
+  skillRow: {
+    overflow: 'hidden',
+    borderRadius: 10,
     borderWidth: 1,
-    padding: 10,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+  },
+  expandedSkillRow: {
+    borderColor: '#2E7468',
+  },
+  skillHeader: {
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  depthMarker: {
+    width: 3,
+    height: 28,
+    borderRadius: 2,
+    backgroundColor: COLORS.accent,
+    marginRight: 10,
+  },
+  skillHeaderText: {
+    flex: 1,
   },
   skillName: {
     color: COLORS.text,
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  childCount: {
+    color: COLORS.muted,
+    fontSize: 10,
+    marginTop: 3,
+  },
+  chevron: {
+    color: COLORS.accent,
+    fontSize: 20,
+    width: 24,
     textAlign: 'center',
   },
-  expandedSkillBubble: {
-    width: 190,
-    height: 190,
-    borderRadius: 95,
+  chevronExpanded: {
+    color: COLORS.text,
+  },
+  skillDetails: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
     backgroundColor: COLORS.raised,
-    padding: 14,
+    paddingHorizontal: 12,
+    paddingTop: 11,
+    paddingBottom: 8,
   },
-  expandedSkillName: {
-    color: COLORS.accent,
-    fontSize: 14,
-    marginBottom: 6,
-  },
-  skillNotesScroll: {
-    flexGrow: 0,
-    maxHeight: 100,
-    width: '100%',
-  },
-  skillNotesContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
+  skillNotesLabel: {
+    color: COLORS.muted,
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
   skillNotes: {
     color: COLORS.text,
-    fontSize: 10,
-    lineHeight: 14,
-    textAlign: 'center',
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 5,
   },
-  tapHint: {
-    color: COLORS.muted,
-    fontSize: 9,
-    marginTop: 4,
+  submenuList: {
+    marginTop: 10,
   },
   addChildButton: {
-    marginTop: 2,
-    paddingVertical: 4,
+    alignSelf: 'flex-start',
+    marginTop: 9,
+    paddingVertical: 7,
   },
   addChildText: {
     color: COLORS.accent,
     fontSize: 12,
-  },
-  branch: {
-    marginLeft: 12,
-    paddingLeft: 12,
+    fontWeight: '700',
   },
   emptyText: {
     color: COLORS.muted,
